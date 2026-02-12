@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=400" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>Medium Exporter</title>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Medium Exporter</h1>
+    </header>
+
+    <section id="article-info">
+      <p id="article-title" class="info-field">--</p>
+      <p id="article-url" class="info-field url">--</p>
+    </section>
+
+    <section id="options">
+      <label class="toggle-row">
+        <input type="checkbox" id="toggle-frontmatter" checked />
+        <span>Include frontmatter</span>
+      </label>
+      <label class="toggle-row">
+        <input type="checkbox" id="toggle-images" checked />
+        <span>Include images</span>
+      </label>
+    </section>
+
+    <section id="actions">
+      <button id="btn-copy" disabled>Copy as Markdown</button>
+      <button id="btn-download" disabled>Download .md</button>
+    </section>
+
+    <section id="status">
+      <p id="status-message"></p>
+    </section>
+  </div>
+
+  <script type="module" src="popup.ts"></script>
+</body>
+</html>
