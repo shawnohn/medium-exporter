@@ -32,8 +32,12 @@ Turndown requires a DOM (`document`). Service workers have no DOM. The popup has
 ```
 medium-exporter/
 ├── CLAUDE.md
-├── PRD.md
-├── Implementation Task list.md
+├── README.md
+├── docs/                      # Reference documentation
+│   ├── PRD.md
+│   ├── implementation-plan.md
+│   ├── deployment.md
+│   └── development.md
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
@@ -147,3 +151,11 @@ Manual QA — load extension, test on:
 - Member-only article (partial content)
 - Non-Medium page (verify error)
 - Paste result into Obsidian (verify rendering)
+
+## Reference Docs
+- `docs/PRD.md` — Product requirements
+- `docs/implementation-plan.md` — Implementation task list and build phases
+- `docs/deployment.md` — Build, load unpacked, Chrome Web Store submission
+- `docs/development.md` — Local dev setup, coding rules, testing
+
+When changing architecture, permissions, build steps, or project structure, update the relevant docs and this `CLAUDE.md`.
