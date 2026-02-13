@@ -86,7 +86,7 @@ All extraction logic (Medium detection, metadata parsing, HTML cleaning) must li
 - Post-processing: collapse 3+ newlines to 2, trim trailing whitespace
 
 ### Filename Format
-`YYYY-MM-DD - article-title-slug.md` (slugified, max 80 chars)
+`Article Title.md` (original title, filesystem-unsafe characters stripped)
 
 ## Permissions
 - `activeTab` — access current tab on user interaction only

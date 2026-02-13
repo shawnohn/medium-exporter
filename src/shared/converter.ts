@@ -13,18 +13,30 @@ function createTurndownService(options: ExportOptions): TurndownService {
 
   td.addRule('fencedCodeBlock', {
     filter(node) {
-      return (
-        node.nodeName === 'PRE' &&
-        node.firstChild !== null &&
-        node.firstChild.nodeName === 'CODE'
-      );
+      return node.nodeName === 'PRE';
     },
     replacement(_content, node) {
-      const codeEl = (node as HTMLElement).querySelector('code')!;
-      const code = codeEl.textContent || '';
-      const langClass = codeEl.className.match(/language-(\w+)/);
+      const el = node as HTMLElement;
+      const codeEl = el.querySelector('code');
+      const source = codeEl || el;
+      const langClass = source.className.match(/language-(\w+)/);
       const lang = langClass ? langClass[1] : '';
-      return `\n\n\`\`\`${lang}\n${code.trimEnd()}\n\`\`\`\n\n`;
+
+      // Convert <br> and block-level wrappers to newlines before extracting text
+      let html = source.innerHTML;
+      html = html.replace(/<br\s*\/?>/gi, '\n');
+      html = html.replace(/<\/div>/gi, '\n');
+      html = html.replace(/<\/p>/gi, '\n');
+      html = html.replace(/<[^>]+>/g, '');
+      html = html
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, ' ');
+
+      return `\n\n\`\`\`${lang}\n${html.trimEnd()}\n\`\`\`\n\n`;
     },
   });
 

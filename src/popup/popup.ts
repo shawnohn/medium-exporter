@@ -15,6 +15,10 @@ const imagesToggle = document.getElementById(
 const copyBtn = document.getElementById('btn-copy') as HTMLButtonElement;
 const downloadBtn = document.getElementById('btn-download') as HTMLButtonElement;
 const statusEl = document.getElementById('status-message')!;
+const versionEl = document.getElementById('version')!;
+
+// Display version from manifest
+versionEl.textContent = `v${chrome.runtime.getManifest().version}`;
 
 // State
 let currentMarkdown = '';
@@ -70,14 +74,10 @@ function buildMarkdown(): void {
 }
 
 function generateFilename(meta: ArticleMetadata): string {
-  const date = meta.publishedDate || meta.retrievedDate;
-  const dateStr = date.slice(0, 10);
-  const slug = meta.title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 80);
-  return `${dateStr} - ${slug}.md`;
+  const title = meta.title
+    .replace(/[<>:"/\\|?*]/g, '')
+    .trim();
+  return `${title || 'Untitled'}.md`;
 }
 
 // Event handlers

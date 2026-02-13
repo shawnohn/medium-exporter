@@ -83,7 +83,9 @@ export function extractArticle(): ExtractResult {
   // 3. Clean article HTML
   const clone = article.cloneNode(true) as HTMLElement;
 
+  // 3a. Remove known non-content elements
   const removeSelectors = [
+    'h1',
     'button',
     'svg',
     '[role="button"]',
@@ -98,8 +100,56 @@ export function extractArticle(): ExtractResult {
     clone.querySelectorAll(sel).forEach((el) => el.remove());
   }
 
-  // Remove sign-up prompts and recommendations
-  clone.querySelectorAll('div, section, p').forEach((el) => {
+  // Helper: check if an element has real article content
+  // Short paragraphs alone (< 50 chars) don't count — catches badges like
+  // "Member-only story" which sit inside <p> tags
+  function hasArticleContent(el: Element): boolean {
+    if (el.querySelector('h2, h3, h4, h5, h6, ul, ol, pre, blockquote, figure, table')) {
+      return true;
+    }
+    const paragraphs = el.querySelectorAll('p');
+    for (const p of paragraphs) {
+      if ((p.textContent?.trim().length || 0) > 50) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 3b. Remove byline sections containing Medium internal links
+  // Byline links use "source=post_page" param (covers both /@user and /? patterns)
+  // Walk up from each link but stop before reaching a container with real content
+  clone
+    .querySelectorAll('a[href*="source=post_page"], a[href^="/@"]')
+    .forEach((link) => {
+      let target: Element = link;
+      let parent = link.parentElement;
+      while (parent && parent !== clone) {
+        if (hasArticleContent(parent)) break;
+        target = parent;
+        parent = parent.parentElement;
+      }
+      target.remove();
+    });
+
+  // 3c. Remove containers (div/section only, NOT spans) with no real content
+  // Catches membership badges, byline remnants, metadata chrome, spacers
+  // Preserves containers that have images (hero images, inline images)
+  // Does NOT touch spans — those may be syntax highlighting inside code blocks
+  const containers = Array.from(
+    clone.querySelectorAll('div, section')
+  ).reverse();
+  for (const container of containers) {
+    if (!hasArticleContent(container) && !container.querySelector('img')) {
+      const text = container.textContent?.trim() || '';
+      if (text.length < 200) {
+        container.remove();
+      }
+    }
+  }
+
+  // 3d. Remove sign-up prompts and recommendations
+  clone.querySelectorAll('div, section').forEach((el) => {
     const text = el.textContent?.trim() || '';
     if (
       text.length < 200 &&
