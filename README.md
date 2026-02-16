@@ -1,17 +1,18 @@
 # Medium to Markdown Exporter
 
-A Chrome extension that exports Medium articles into clean, Obsidian-compatible Markdown. Copy to clipboard or download as `.md` — fully local, no external services.
+A Chrome extension that exports Medium articles into clean, Obsidian-compatible Markdown. Copy to clipboard, download as `.md`, or send directly to Obsidian — fully local, no external services.
 
 ## Features
 
 - **One-click export** — click the extension icon on any Medium article
 - **Clipboard copy** — paste directly into Obsidian or any editor
-- **File download** — saves as `YYYY-MM-DD - article-title.md`
+- **File download** — saves as `Article Title.md`
+- **Send to Obsidian** — send articles directly to your Obsidian vault via the [Local REST API](https://github.com/coddingtonbear/obsidian-local-rest-api) plugin
 - **YAML frontmatter** — optional metadata block (title, author, source, dates)
 - **Smart extraction** — strips Medium UI noise (claps, follow buttons, recommendations, sign-up prompts)
 - **Code block support** — preserves fenced code blocks with language detection
 - **Image toggle** — include or exclude images from output
-- **Fully local** — no API calls, no telemetry, no data leaves your browser
+- **Fully local** — no external API calls, no telemetry, no data leaves your browser
 
 ## Install
 
@@ -42,7 +43,19 @@ Starts Vite with HMR. The extension auto-reloads on code changes.
 2. Click the extension icon
 3. The popup shows the article title and URL
 4. Toggle **Include frontmatter** and **Include images** as needed
-5. Click **Copy as Markdown** or **Download .md**
+5. Click **Copy as Markdown**, **Download .md**, or **Send to Obsidian**
+
+### Send to Obsidian setup
+
+To send articles directly to your Obsidian vault:
+
+1. Install the [Local REST API](https://github.com/coddingtonbear/obsidian-local-rest-api) community plugin in Obsidian
+2. In the plugin settings, **enable the Insecure Server** (HTTP on port 27123) — this avoids self-signed certificate issues that HTTPS requires
+3. Copy the API key from the plugin settings
+4. In the extension popup, click **Obsidian Settings**, paste your API key, and click **Save**
+5. Optionally set a vault folder (e.g. `Medium Articles/`) to organize exported notes — defaults to the vault root if left empty
+
+The extension defaults to `http://127.0.0.1:27123` (the plugin's HTTP server). Using HTTP is strongly recommended — the HTTPS server (port 27124) requires installing a self-signed certificate into your OS trust store, which varies by platform and is error-prone. HTTP is safe here since traffic never leaves your machine, and the API key still protects against unauthorized access.
 
 ### Example output
 
@@ -65,8 +78,8 @@ Article content converted to clean Markdown...
 | Component | File | Role |
 |-----------|------|------|
 | Content extractor | `src/content/extractor.ts` | Injected into Medium pages to extract article HTML and metadata |
-| Service worker | `src/background/service-worker.ts` | Handles tab injection and file downloads |
-| Popup | `src/popup/` | User-facing UI, runs Markdown conversion |
+| Service worker | `src/background/service-worker.ts` | Handles tab injection, file downloads, and Obsidian API calls |
+| Popup | `src/popup/` | User-facing UI, runs Markdown conversion, manages Obsidian settings |
 | Converter | `src/shared/converter.ts` | Turndown with custom rules for code blocks, figures, images |
 | Frontmatter | `src/shared/frontmatter.ts` | YAML frontmatter generation |
 
@@ -85,8 +98,9 @@ Article content converted to clean Markdown...
 | `scripting` | Inject the content extractor into the page |
 | `clipboardWrite` | Copy Markdown to clipboard |
 | `downloads` | Save `.md` files |
+| `storage` | Persist Obsidian settings (API URL, API key, folder path) |
 
-No broad host permissions. No background network activity.
+`optional_host_permissions` for `127.0.0.1` and `localhost` are requested at runtime only when Obsidian integration is first used — no broad host permissions at install time.
 
 ## License
 

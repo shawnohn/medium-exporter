@@ -23,3 +23,9 @@ export interface ExportOptions {
   includeFrontmatter: boolean;
   includeImages: boolean;
 }
+
+export interface ObsidianSettings {
+  apiUrl: string;      // e.g. "http://127.0.0.1:27123"
+  apiKey: string;      // Bearer token from plugin settings
+  folderPath: string;  // e.g. "Medium Articles/" or "" for vault root
+}

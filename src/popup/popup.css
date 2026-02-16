@@ -63,6 +63,7 @@ h1 {
 
 #actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -85,6 +86,85 @@ button:hover:not(:disabled) {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+#btn-obsidian {
+  flex-basis: 100%;
+  background: #7c3aed;
+  color: #fff;
+  border-color: #6d28d9;
+}
+
+#btn-obsidian:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+#btn-obsidian:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#obsidian-settings {
+  margin-bottom: 12px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #666;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  flex: none;
+}
+
+.link-btn:hover {
+  color: #333;
+}
+
+.hidden {
+  display: none;
+}
+
+#settings-panel {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+.settings-label {
+  display: block;
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.settings-label .hint {
+  color: #999;
+}
+
+.settings-label input {
+  display: block;
+  width: 100%;
+  margin-top: 3px;
+  padding: 5px 8px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-actions button {
+  font-size: 12px;
+  padding: 5px 12px;
 }
 
 #status-message {

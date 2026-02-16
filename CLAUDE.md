@@ -23,6 +23,7 @@ Users click the extension icon on a Medium article, then copy markdown to clipbo
 Popup opens → EXTRACT → Background → injects extractor → returns { metadata, articleHtml }
 Copy click → popup calls navigator.clipboard.writeText() directly (no message needed)
 Download click → DOWNLOAD_FILE → Background → chrome.downloads.download
+Send to Obsidian click → SEND_TO_OBSIDIAN → Background → fetch PUT /vault/{path} → Obsidian Local REST API
 ```
 
 ### Why Turndown runs in Popup (not Service Worker)
@@ -45,8 +46,8 @@ medium-exporter/
 ├── public/icons/           # 16/32/48/128px PNGs
 └── src/
     ├── shared/
-    │   ├── types.ts        # Shared interfaces (ArticleMetadata, ExportOptions, etc.)
-    │   ├── messages.ts     # Typed message protocol (EXTRACT, DOWNLOAD_FILE)
+    │   ├── types.ts        # Shared interfaces (ArticleMetadata, ExportOptions, ObsidianSettings)
+    │   ├── messages.ts     # Typed message protocol (EXTRACT, DOWNLOAD_FILE, SEND_TO_OBSIDIAN)
     │   ├── converter.ts    # Turndown config + custom rules
     │   └── frontmatter.ts  # YAML frontmatter builder
     ├── content/
@@ -93,8 +94,11 @@ All extraction logic (Medium detection, metadata parsing, HTML cleaning) must li
 - `scripting` — inject extractor function
 - `clipboardWrite` — clipboard access
 - `downloads` — file download trigger
+- `storage` — persist Obsidian settings via `chrome.storage.local`
 
 No `content_scripts` in manifest (on-demand injection only). No `host_permissions`.
+
+`optional_host_permissions` for `127.0.0.1` and `localhost` (any port) — requested at runtime when user first configures Obsidian integration.
 
 ## Dependencies
 ```
@@ -119,6 +123,13 @@ npm run build   # Production build (tsc + vite build)
 2. Click "Load unpacked" → select `dist/` directory
 3. CRXJS provides auto-reload during `npm run dev`
 
+### Obsidian Integration
+- Uses the [Obsidian Local REST API](https://github.com/coddingtonbear/obsidian-local-rest-api) community plugin (no custom Obsidian plugin needed)
+- Defaults to HTTP (`http://127.0.0.1:27123`) to avoid self-signed certificate trust issues
+- Users must enable "Insecure Server" in the Local REST API plugin settings
+- Settings (API URL, API key, folder path) stored in `chrome.storage.local`
+- Settings passed in each message to keep the background service worker stateless
+
 ## Design Principles
 - Fully local: no external API calls, no telemetry, no data persistence
 - Minimal permissions: `activeTab` over broad host permissions
@@ -131,6 +142,9 @@ npm run build   # Production build (tsc + vite build)
 - Extraction failure → specific error from extractor
 - Clipboard failure → "Clipboard write failed."
 - Download failure → "Download failed: {reason}"
+- Obsidian not configured → "Configure Obsidian settings first." + settings panel expands
+- Obsidian auth failure → "Authentication failed. Check your API key."
+- Obsidian unreachable → "Could not connect to Obsidian. Make sure Obsidian is running with the Local REST API plugin enabled."
 - All errors shown in popup status area with `.error` styling
 
 ## Implementation Order
@@ -158,4 +172,4 @@ Manual QA — load extension, test on:
 - `docs/deployment.md` — Build, load unpacked, Chrome Web Store submission
 - `docs/development.md` — Local dev setup, coding rules, testing
 
-When changing architecture, permissions, build steps, or project structure, update the relevant docs and this `CLAUDE.md`.
+When changing architecture, permissions, build steps, or project structure, update the relevant docs, `README.md`, and this `CLAUDE.md`.

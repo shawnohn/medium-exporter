@@ -31,6 +31,29 @@
     <section id="actions">
       <button id="btn-copy" disabled>Copy as Markdown</button>
       <button id="btn-download" disabled>Download .md</button>
+      <button id="btn-obsidian" disabled>Send to Obsidian</button>
+    </section>
+
+    <section id="obsidian-settings">
+      <button id="btn-toggle-settings" class="link-btn" type="button">Obsidian Settings</button>
+      <div id="settings-panel" class="hidden">
+        <label class="settings-label">
+          API URL
+          <input type="text" id="setting-api-url" placeholder="http://127.0.0.1:27123" />
+        </label>
+        <label class="settings-label">
+          API Key
+          <input type="password" id="setting-api-key" placeholder="Paste from Local REST API plugin" />
+        </label>
+        <label class="settings-label">
+          Vault folder <span class="hint">(optional, defaults to vault root)</span>
+          <input type="text" id="setting-folder" placeholder="e.g. Medium Articles/" />
+        </label>
+        <div class="settings-actions">
+          <button id="btn-save-settings" type="button">Save</button>
+          <button id="btn-test-connection" type="button">Test</button>
+        </div>
+      </div>
     </section>
 
     <section id="status">

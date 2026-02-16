@@ -1,5 +1,5 @@
 import type { PopupMessage, BackgroundResponse } from '../shared/messages';
-import type { ExtractResult } from '../shared/types';
+import type { ExtractResult, ObsidianSettings } from '../shared/types';
 import { extractArticle } from '../content/extractor';
 
 chrome.runtime.onMessage.addListener(
@@ -11,6 +11,15 @@ chrome.runtime.onMessage.addListener(
 
     if (message.type === 'DOWNLOAD_FILE') {
       handleDownload(message.markdown, message.filename).then(sendResponse);
+      return true;
+    }
+
+    if (message.type === 'SEND_TO_OBSIDIAN') {
+      handleSendToObsidian(
+        message.markdown,
+        message.filename,
+        message.settings
+      ).then(sendResponse);
       return true;
     }
   }
@@ -51,6 +60,60 @@ async function handleExtract(): Promise<BackgroundResponse> {
     const msg = err instanceof Error ? err.message : String(err);
     return { type: 'ERROR', error: `Injection failed: ${msg}` };
   }
+}
+
+async function handleSendToObsidian(
+  markdown: string,
+  filename: string,
+  settings: ObsidianSettings
+): Promise<BackgroundResponse> {
+  try {
+    const path = `/vault/${encodeVaultPath(filename)}`;
+    const url = new URL(path, settings.apiUrl);
+
+    const response = await fetch(url.href, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'text/markdown',
+        Authorization: `Bearer ${settings.apiKey}`,
+      },
+      body: markdown,
+      mode: 'cors',
+    });
+
+    if (response.status === 204 || response.status === 200) {
+      return { type: 'OBSIDIAN_SUCCESS' };
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      return {
+        type: 'ERROR',
+        error: 'Authentication failed. Check your API key.',
+      };
+    }
+
+    return {
+      type: 'ERROR',
+      error: `Obsidian API error (${response.status}): ${response.statusText}`,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      return {
+        type: 'ERROR',
+        error:
+          'Could not connect to Obsidian. Make sure Obsidian is running with the Local REST API plugin enabled.',
+      };
+    }
+    return { type: 'ERROR', error: `Obsidian send failed: ${msg}` };
+  }
+}
+
+function encodeVaultPath(filepath: string): string {
+  return filepath
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
 }
 
 async function handleDownload(

@@ -1,4 +1,4 @@
-import type { ArticleMetadata } from './types';
+import type { ArticleMetadata, ObsidianSettings } from './types';
 
 // Popup -> Background
 
@@ -12,7 +12,17 @@ export interface DownloadFileMessage {
   filename: string;
 }
 
-export type PopupMessage = ExtractMessage | DownloadFileMessage;
+export interface SendToObsidianMessage {
+  type: 'SEND_TO_OBSIDIAN';
+  markdown: string;
+  filename: string;
+  settings: ObsidianSettings;
+}
+
+export type PopupMessage =
+  | ExtractMessage
+  | DownloadFileMessage
+  | SendToObsidianMessage;
 
 // Background -> Popup
 
@@ -26,6 +36,10 @@ export interface DownloadSuccessResponse {
   type: 'DOWNLOAD_SUCCESS';
 }
 
+export interface ObsidianSuccessResponse {
+  type: 'OBSIDIAN_SUCCESS';
+}
+
 export interface ErrorResponse {
   type: 'ERROR';
   error: string;
@@ -34,4 +48,5 @@ export interface ErrorResponse {
 export type BackgroundResponse =
   | ExtractSuccessResponse
   | DownloadSuccessResponse
+  | ObsidianSuccessResponse
   | ErrorResponse;
