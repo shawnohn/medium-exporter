@@ -56,7 +56,7 @@ The `extractArticle()` function in `src/content/extractor.ts` is serialized and 
 | Directory | Purpose |
 |-----------|---------|
 | `src/content/` | Content extractor (injected into pages) |
-| `src/background/` | Service worker (message routing, downloads) |
+| `src/background/` | Service worker (message routing, downloads, Obsidian API) |
 | `src/popup/` | Popup UI (HTML, CSS, TypeScript) |
 | `src/shared/` | Shared types, messages, converter, frontmatter |
 | `public/icons/` | Extension icons |
@@ -66,9 +66,10 @@ The `extractArticle()` function in `src/content/extractor.ts` is serialized and 
 
 Manual QA only (no automated tests in MVP). Test on:
 - Standard Medium article
-- Article with code blocks
+- Article with code blocks (including nested backticks)
 - Article with images and captions
 - Article with nested lists and blockquotes
 - Member-only article (partial content visible)
 - Non-Medium page (should show error)
 - Paste output into Obsidian to verify rendering
+- Send to Obsidian via Local REST API (with and without vault folder)
