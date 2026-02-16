@@ -35,7 +35,11 @@ This produces an optimized `dist/` directory with all extension files.
 - [ ] Article title and URL display on a Medium page
 - [ ] "Copy as Markdown" produces valid Markdown
 - [ ] "Download .md" saves a file with correct filename format
+- [ ] "Send to Obsidian" delivers note to vault
 - [ ] Frontmatter toggle works (on/off)
 - [ ] Images toggle works (on/off)
+- [ ] Code blocks with backticks render correctly
+- [ ] Obsidian settings save and persist across popup reopens
+- [ ] Test connection shows success with valid API key
 - [ ] Non-Medium pages show an error message
 - [ ] No console errors in the popup or service worker
