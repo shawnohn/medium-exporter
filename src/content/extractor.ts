@@ -88,7 +88,6 @@ export function extractArticle(): ExtractResult {
     'h1',
     'button',
     'svg',
-    '[role="button"]',
     'aside',
     '[data-testid*="response"]',
     '[data-testid*="clap"]',
@@ -100,11 +99,19 @@ export function extractArticle(): ExtractResult {
     clone.querySelectorAll(sel).forEach((el) => el.remove());
   }
 
+  // Remove [role="button"] only when it doesn't contain images
+  // (Medium wraps zoomable images in role="button" divs)
+  clone.querySelectorAll('[role="button"]').forEach((el) => {
+    if (!el.querySelector('img, picture')) {
+      el.remove();
+    }
+  });
+
   // Helper: check if an element has real article content
   // Short paragraphs alone (< 50 chars) don't count — catches badges like
   // "Member-only story" which sit inside <p> tags
   function hasArticleContent(el: Element): boolean {
-    if (el.querySelector('h2, h3, h4, h5, h6, ul, ol, pre, blockquote, figure, table')) {
+    if (el.querySelector('h2, h3, h4, h5, h6, ul, ol, pre, blockquote, figure, picture, img, table')) {
       return true;
     }
     const paragraphs = el.querySelectorAll('p');
@@ -140,7 +147,7 @@ export function extractArticle(): ExtractResult {
     clone.querySelectorAll('div, section')
   ).reverse();
   for (const container of containers) {
-    if (!hasArticleContent(container) && !container.querySelector('img')) {
+    if (!hasArticleContent(container) && !container.querySelector('img, picture')) {
       const text = container.textContent?.trim() || '';
       if (text.length < 200) {
         container.remove();

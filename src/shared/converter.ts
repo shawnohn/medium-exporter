@@ -1,6 +1,25 @@
 import TurndownService from 'turndown';
 import type { ExportOptions } from './types';
 
+function extractPreText(html: string, spanAsLine = false): string {
+  let h = html;
+  h = h.replace(/<br\s*\/?>/gi, '\n');
+  h = h.replace(/<\/div>/gi, '\n');
+  h = h.replace(/<\/p>/gi, '\n');
+  if (spanAsLine) {
+    h = h.replace(/<\/span>/gi, '\n');
+  }
+  h = h.replace(/<[^>]+>/g, '');
+  h = h
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+  return h;
+}
+
 function createTurndownService(options: ExportOptions): TurndownService {
   const td = new TurndownService({
     headingStyle: 'atx',
@@ -22,21 +41,24 @@ function createTurndownService(options: ExportOptions): TurndownService {
       const langClass = source.className.match(/language-(\w+)/);
       const lang = langClass ? langClass[1] : '';
 
-      // Convert <br> and block-level wrappers to newlines before extracting text
-      let html = source.innerHTML;
-      html = html.replace(/<br\s*\/?>/gi, '\n');
-      html = html.replace(/<\/div>/gi, '\n');
-      html = html.replace(/<\/p>/gi, '\n');
-      html = html.replace(/<[^>]+>/g, '');
-      html = html
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&nbsp;/g, ' ');
+      // Extract text from innerHTML, converting block-level elements to newlines
+      let text = extractPreText(source.innerHTML);
 
-      return `\n\n\`\`\`${lang}\n${html.trimEnd()}\n\`\`\`\n\n`;
+      // If no newlines after stripping (Medium line-container spans with no
+      // whitespace between them), retry with </span> → \n
+      if (!text.includes('\n') && source.querySelector('span')) {
+        text = extractPreText(source.innerHTML, true);
+      }
+
+      // Use enough backticks to avoid conflict with content containing ```
+      let fence = '```';
+      const backtickMatch = text.match(/`{3,}/g);
+      if (backtickMatch) {
+        const maxLen = Math.max(...backtickMatch.map((m) => m.length));
+        fence = '`'.repeat(maxLen + 1);
+      }
+
+      return `\n\n${fence}${lang}\n${text.trimEnd()}\n${fence}\n\n`;
     },
   });
 
@@ -44,14 +66,34 @@ function createTurndownService(options: ExportOptions): TurndownService {
     filter: 'figure',
     replacement(_content, node) {
       const el = node as HTMLElement;
-      const img = el.querySelector('img');
       const figcaption = el.querySelector('figcaption');
-
-      if (!img) return '';
-
-      const src = img.getAttribute('src') || '';
-      const alt = img.getAttribute('alt') || '';
       const caption = figcaption?.textContent?.trim() || '';
+
+      // Find image src: try <img>, then <picture><source>, then data-src
+      let src = '';
+      let alt = '';
+      const img = el.querySelector('img');
+      if (img) {
+        alt = img.getAttribute('alt') || '';
+        src = img.getAttribute('src') || img.getAttribute('data-src') || '';
+        // If src is a placeholder blob, try srcset
+        if (!src || src.startsWith('data:')) {
+          const srcset = img.getAttribute('srcset') || '';
+          if (srcset) {
+            src = srcset.split(',').pop()!.trim().split(/\s+/)[0];
+          }
+        }
+      }
+      // Fallback: <picture><source srcset>
+      if (!src) {
+        const source = el.querySelector('picture source[srcset]');
+        if (source) {
+          const srcset = source.getAttribute('srcset') || '';
+          src = srcset.split(',').pop()!.trim().split(/\s+/)[0];
+        }
+      }
+
+      if (!src) return caption ? `\n\n*${caption}*\n\n` : '';
 
       if (!options.includeImages) {
         return caption ? `\n\n*${caption}*\n\n` : '';
@@ -90,8 +132,8 @@ export function htmlToMarkdown(html: string, options: ExportOptions): string {
     .map((line) => line.trimEnd())
     .join('\n');
 
-  // Ensure single trailing newline
-  markdown = markdown.trimEnd() + '\n';
+  // Trim leading/trailing whitespace, ensure single trailing newline
+  markdown = markdown.trim() + '\n';
 
   return markdown;
 }

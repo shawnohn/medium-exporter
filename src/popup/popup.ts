@@ -84,12 +84,13 @@ function buildMarkdown(): void {
 
   let md = '';
   if (options.includeFrontmatter) {
-    md += buildFrontmatter(currentMetadata) + '\n\n';
+    md += buildFrontmatter(currentMetadata) + '\n';
   }
   md += `# ${currentMetadata.title}\n\n`;
   md += body;
 
-  currentMarkdown = md;
+  // Remove any leading blank lines from the final output
+  currentMarkdown = md.replace(/^\n+/, '');
   currentFilename = generateFilename(currentMetadata);
 }
 
