@@ -2,7 +2,7 @@
 
 ## Project Overview
 Chrome Extension (Manifest V3) that exports Medium articles to clean, Obsidian-compatible Markdown.
-Users click the extension icon on a Medium article, then copy markdown to clipboard, download as `.md`, or send directly to Obsidian via the Local REST API plugin.
+Users click the extension icon on a Medium article, then copy markdown to clipboard or download as `.md`.
 
 ## Tech Stack
 - **Build:** Vite + @crxjs/vite-plugin v2
@@ -34,15 +34,16 @@ Turndown requires a DOM (`document`). Service workers have no DOM. The popup has
 medium-exporter/
 ├── CLAUDE.md
 ├── README.md
-├── LICENSE
 ├── docs/                      # Reference documentation
+│   ├── PRD.md
+│   ├── implementation-plan.md
 │   ├── deployment.md
 │   └── development.md
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
 ├── manifest.json
-├── public/icons/           # 16/32/48/128px PNGs + SVG sources
+├── public/icons/           # 16/32/48/128px PNGs
 └── src/
     ├── shared/
     │   ├── types.ts        # Shared interfaces (ArticleMetadata, ExportOptions, ObsidianSettings)
@@ -56,7 +57,7 @@ medium-exporter/
     └── popup/
         ├── popup.html
         ├── popup.css
-        └── popup.ts        # Orchestrator: UI state, conversion, copy, download, Obsidian
+        └── popup.ts        # Orchestrator: UI state, conversion, copy, download
 ```
 
 ## Key Conventions
@@ -75,19 +76,15 @@ All extraction logic (Medium detection, metadata parsing, HTML cleaning) must li
 3. DOM fallback (`document.title`, `<link rel="canonical">`, etc.)
 
 ### Content Cleaning Strategy
-- Use semantic selectors (`button`, `aside`, `svg`) over brittle class names
-- `[role="button"]` is only removed when it does NOT contain images (Medium wraps zoomable images in these)
+- Use semantic selectors (`button`, `aside`, `[role="button"]`, `svg`) over brittle class names
 - Be conservative: better to leave minor noise than strip article content
 - Medium's DOM changes over time; class names are unreliable
 
 ### Turndown Custom Rules
 - Fenced code blocks with language detection from `class="language-xxx"`
-- Dynamic fence length (uses more backticks when content contains ```)
-- Code block text extracted via innerHTML stripping, with `</span>` → `\n` fallback for line-container spans
 - `<figure>` with `<figcaption>` → `![alt](src)` + italic caption
-- Image sources: checks `src`, `data-src`, `srcset`, and `<picture><source srcset>`
 - Image toggle support: strip `<img>` when images disabled
-- Post-processing: collapse 3+ newlines to 2, trim whitespace
+- Post-processing: collapse 3+ newlines to 2, trim trailing whitespace
 
 ### Filename Format
 `Article Title.md` (original title, filesystem-unsafe characters stripped)
@@ -170,6 +167,8 @@ Manual QA — load extension, test on:
 - Paste result into Obsidian (verify rendering)
 
 ## Reference Docs
+- `docs/PRD.md` — Product requirements
+- `docs/implementation-plan.md` — Implementation task list and build phases
 - `docs/deployment.md` — Build, load unpacked, Chrome Web Store submission
 - `docs/development.md` — Local dev setup, coding rules, testing
 
