@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="arrowGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#a06cd5"/>
+      <stop offset="45%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+    <linearGradient id="arrowTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c4a0e8"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="foldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4d4d4"/>
+      <stop offset="100%" stop-color="#ececec"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Document body — fills full canvas -->
+  <path d="M0,6 Q0,0 6,0 L88,0 L128,40 L128,122 Q128,128 122,128 L6,128 Q0,128 0,122 Z"
+        fill="#fafafa" stroke="#c8c8c8" stroke-width="0.5"/>
+
+  <!-- Page fold -->
+  <path d="M88,0 L88,34 Q88,40 94,40 L128,40 Z" fill="url(#foldGrad)"/>
+  <line x1="88" y1="0" x2="88" y2="34" stroke="#bbb" stroke-width="0.3"/>
+  <line x1="94" y1="40" x2="128" y2="40" stroke="#bbb" stroke-width="0.3"/>
+
+  <!-- "M" letter -->
+  <text x="40" y="52" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-weight="bold" fill="#191919" text-anchor="middle">M</text>
+
+  <!-- Text lines -->
+  <rect x="12" y="62" width="90" height="3.5" rx="1" fill="#222"/>
+  <rect x="12" y="72" width="90" height="3.5" rx="1" fill="#222"/>
+  <rect x="12" y="82" width="90" height="3.5" rx="1" fill="#222"/>
+  <rect x="12" y="92" width="78" height="3.5" rx="1" fill="#222"/>
+  <rect x="12" y="102" width="68" height="3.5" rx="1" fill="#222"/>
+  <rect x="12" y="112" width="80" height="3.5" rx="1" fill="#222"/>
+
+  <!-- Purple swoosh arrow -->
+  <path d="M30,118
+           C26,96 36,80 56,76
+           Q74,72 96,78
+           L96,66
+           L128,86
+           L96,106
+           L96,94
+           Q76,88 64,90
+           C48,94 38,104 36,118
+           Z"
+        fill="url(#arrowGrad)"/>
+
+  <!-- Arrow highlight -->
+  <path d="M36,114
+           C34,98 42,84 60,80
+           Q74,76 94,80
+           L94,70
+           L122,86
+           L94,102
+           L94,92
+           Q76,86 66,88
+           C52,92 44,100 40,114
+           Z"
+        fill="url(#arrowTop)" opacity="0.3"/>
+</svg>

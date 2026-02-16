@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a06cd5"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Simple rounded document -->
+  <rect x="0" y="0" width="32" height="32" rx="4" fill="#f5f5f5" stroke="#c0c0c0" stroke-width="0.75"/>
+
+  <!-- Bold "M" -->
+  <text x="11" y="18" font-family="Georgia, 'Times New Roman', serif" font-size="17" font-weight="bold" fill="#191919" text-anchor="middle">M</text>
+
+  <!-- Simple thick arrow -->
+  <path d="M14,24 C13,18 16,15 21,14 L21,10 L31,17 L21,24 L21,20 C17,19 15,20 14,24 Z"
+        fill="url(#arrowGrad)"/>
+</svg>
